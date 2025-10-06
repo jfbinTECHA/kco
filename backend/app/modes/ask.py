@@ -1,8 +1,7 @@
-from .base import Mode
-from ..kilo_adapter import build_system_prompt
+from ..kilo_adapter import load_prompt
 
-class AskMode(Mode):
+class AskMode:
     name = "ask"
 
     def system_prompt(self, ctx):
-        return build_system_prompt("ask", ctx)
+        return load_prompt(self.name)

@@ -25,7 +25,7 @@ def read_root():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    from .kilo_adapter import build_system_prompt
+    mode = get_mode(req.mode)
 
     # Extract the latest user message
     user_messages = [msg for msg in req.messages if msg.role == "user"]
@@ -34,8 +34,8 @@ async def chat(req: ChatRequest):
 
     latest_message = user_messages[-1].content
 
-    # Build system prompt using Kilocode templates
-    system_prompt = build_system_prompt(req.mode, req.project_context)
+    # Get system prompt from mode (loads Kilocode templates)
+    system_prompt = mode.system_prompt(req.project_context)
 
     # Get conversation history (all messages except the last user message)
     conversation_history = [m.dict() for m in req.messages[:-1]]
@@ -53,13 +53,13 @@ async def chat(req: ChatRequest):
             temperature=0.2,
         )
         response_text = resp.choices[0].message.content or ""
-        return ChatResponse(content=response_text, meta={"mode": req.mode})
+        return ChatResponse(content=response_text, meta={"mode": mode.name})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest):
-    from .kilo_adapter import build_system_prompt
+    mode = get_mode(req.mode)
 
     # Extract the latest user message
     user_messages = [msg for msg in req.messages if msg.role == "user"]
@@ -76,8 +76,8 @@ async def chat_stream(req: ChatRequest):
 
     latest_message = user_messages[-1].content
 
-    # Build system prompt using Kilocode templates
-    system_prompt = build_system_prompt(req.mode, req.project_context)
+    # Get system prompt from mode (loads Kilocode templates)
+    system_prompt = mode.system_prompt(req.project_context)
 
     # Get conversation history (all messages except the last user message)
     conversation_history = [m.dict() for m in req.messages[:-1]]

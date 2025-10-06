@@ -1,8 +1,7 @@
-from .base import Mode
-from ..kilo_adapter import build_system_prompt
+from ..kilo_adapter import load_prompt
 
-class ArchitectMode(Mode):
+class ArchitectMode:
     name = "architect"
 
     def system_prompt(self, project_context):
-        return build_system_prompt("architect", project_context)
+        return load_prompt(self.name)
