@@ -32,6 +32,7 @@ export default function Chat() {
           <option value="architect">architect</option>
           <option value="coder">coder</option>
           <option value="debugger">debugger</option>
+          <option value="ask">ask</option>
         </select>
       </div>
       <div className="border rounded p-3 min-h-[240px] space-y-3 bg-white">

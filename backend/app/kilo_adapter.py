@@ -6,11 +6,13 @@ HTTP.
 from .modes.architect import ArchitectMode
 from .modes.coder import CoderMode
 from .modes.debugger import DebuggerMode
+from .modes.ask import AskMode
 
 MODE_MAP = {
     "architect": ArchitectMode(),
     "coder": CoderMode(),
     "debugger": DebuggerMode(),
+    "ask": AskMode(),
 }
 
 def get_mode(name: str):

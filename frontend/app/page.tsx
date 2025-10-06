@@ -37,7 +37,7 @@ export default function Home() {
         <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100">
           <h2 className="mb-3 text-2xl font-semibold">Ask</h2>
           <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Get answers to technical questions.
+            Get answers to any questions.
           </p>
         </div>
       </div>
