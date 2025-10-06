@@ -2,15 +2,21 @@ from typing import List, Dict, Any
 import os
 from ..settings import settings
 from ..providers.openai import OpenAIProvider
+from ..tools.fs import FileSystemTool
 
 class Mode:
     name = "base"
 
     def __init__(self):
         self.provider = OpenAIProvider()
+        self.fs_tool = FileSystemTool()
 
-    def load_rules(self) -> Dict[str, str]:
-        """Load global and project rules from files."""
+    def load_rules(self, custom_rules: Dict[str, str] = None) -> Dict[str, str]:
+        """Load rules from custom input or fallback to files."""
+        if custom_rules:
+            return custom_rules
+
+        # Fallback to static files
         rules = {}
         rules_dir = os.path.join(os.path.dirname(__file__), '..', 'rules')
 
@@ -34,9 +40,9 @@ class Mode:
     def postprocess(self, text: str) -> str:
         return text
 
-    def build_system_prompt(self, project_context=None) -> str:
+    def build_system_prompt(self, project_context=None, custom_rules=None) -> str:
         """Build complete system prompt: base + global + project + mode-specific"""
-        rules = self.load_rules()
+        rules = self.load_rules(custom_rules)
 
         prompt_parts = []
 
@@ -58,15 +64,40 @@ class Mode:
 
         return "\n".join(prompt_parts)
 
-    def process(self, message: str, project_context: dict = None, conversation_history: list = None) -> str:
+    def get_project_context(self, project_path: str = ".") -> Dict[str, Any]:
+        """Generate project context using filesystem tools"""
         try:
-            system_prompt = self.build_system_prompt(project_context)
+            # Index the project directory
+            index_result = self.fs_tool.index_directory(project_path, max_depth=2)
+
+            if "error" in index_result:
+                return {"error": index_result["error"]}
+
+            # Create a compact file list for context
+            files_list = []
+            for file_info in index_result.get("files", [])[:20]:  # Limit to 20 files
+                files_list.append(f"{file_info['path']} ({file_info['size']} bytes)")
+
+            return {
+                "path": project_path,
+                "files_index": files_list,
+                "total_files": index_result.get("total_files", 0),
+                "total_dirs": index_result.get("total_dirs", 0)
+            }
+        except Exception as e:
+            return {"error": f"Failed to generate project context: {str(e)}"}
+
+    def process(self, message: str, project_context: dict = None, conversation_history: list = None, custom_rules: dict = None) -> str:
+        try:
+            system_prompt = self.build_system_prompt(project_context, custom_rules)
             messages = [{"role": "system", "content": system_prompt}]
 
-            # Add project context if available
-            if project_context:
-                context_str = f"Project Context: {project_context}"
-                messages.append({"role": "system", "content": context_str})
+            # Generate project context if path provided
+            if project_context and "path" in project_context:
+                fs_context = self.get_project_context(project_context["path"])
+                if "error" not in fs_context:
+                    context_str = f"Project Files: {', '.join(fs_context.get('files_index', [])[:10])}"  # Limit to 10 files
+                    messages.append({"role": "system", "content": context_str})
 
             # Add conversation history if available
             if conversation_history:

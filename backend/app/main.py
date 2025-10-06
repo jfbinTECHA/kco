@@ -26,40 +26,53 @@ def read_root():
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     mode = get_mode(req.mode)
-    system = mode.system_prompt(req.project_context)
-    messages = [{"role": "system", "content": system}] + [m.dict() for m in req.messages]
-    try:
-        resp = client.chat.completions.create(
-            model=settings.model,
-            messages=messages,
-            temperature=0.2,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    text = resp.choices[0].message.content or ""
-    return ChatResponse(content=mode.postprocess(text), meta={"mode": mode.name})
+    # Extract the latest user message
+    user_messages = [msg for msg in req.messages if msg.role == "user"]
+    if not user_messages:
+        return ChatResponse(content="No user message found", meta={"error": "no_user_message"})
+
+    latest_message = user_messages[-1].content
+
+    # Process with mode, context, and custom rules
+    response_text = mode.process(
+        message=latest_message,
+        project_context=req.project_context,
+        custom_rules=req.custom_rules
+    )
+    return ChatResponse(content=response_text, meta={"mode": mode.name})
 
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest):
     mode = get_mode(req.mode)
-    system = mode.system_prompt(req.project_context)
-    messages = [{"role": "system", "content": system}] + [m.dict() for m in req.messages]
+    # Extract the latest user message
+    user_messages = [msg for msg in req.messages if msg.role == "user"]
+    if not user_messages:
+        async def error_generate():
+            yield "data: Error: No user message found\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            error_generate(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+        )
+
+    latest_message = user_messages[-1].content
+    # Convert messages to format expected by process method
+    conversation_history = [m.dict() for m in req.messages[:-1]]  # All except last message
 
     async def generate():
         try:
-            response = client.chat.completions.create(
-                model=settings.model,
-                messages=messages,
-                temperature=0.2,
-                stream=True,
+            # Use the mode's process method with streaming
+            response_text = mode.process(
+                message=latest_message,
+                project_context=req.project_context,
+                conversation_history=conversation_history,
+                custom_rules=req.custom_rules
             )
 
-            for chunk in response:
-                if chunk.choices[0].delta.content:
-                    # Send each token as a Server-Sent Event
-                    yield f"data: {chunk.choices[0].delta.content}\n\n"
-
-            # Send end marker
+            # For now, yield the full response as one chunk (streaming token-by-token would require provider changes)
+            yield f"data: {response_text}\n\n"
             yield "data: [DONE]\n\n"
 
         except Exception as e:

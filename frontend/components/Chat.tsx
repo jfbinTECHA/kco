@@ -8,6 +8,10 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("coder");
   const [loading, setLoading] = useState(false);
+  const [globalRules, setGlobalRules] = useState("Always be helpful, accurate, and concise.\nUse clear, professional language.\nProvide practical solutions.");
+  const [projectRules, setProjectRules] = useState("Follow existing code style and conventions.\nMaintain backward compatibility.\nWrite comprehensive tests.");
+  const [projectPath, setProjectPath] = useState(".");
+  const [showRules, setShowRules] = useState(false);
 
   async function send() {
     if (!input.trim()) return;
@@ -48,7 +52,12 @@ export default function Chat() {
     fetch("/api/chat/stream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: next, mode })
+      body: JSON.stringify({
+        messages: next,
+        mode,
+        custom_rules: { global: globalRules, project: projectRules },
+        project_context: { path: projectPath }
+      })
     }).catch(() => {
       eventSource.close();
       setLoading(false);
@@ -66,6 +75,46 @@ export default function Chat() {
           <option value="debugger">debugger</option>
           <option value="ask">ask</option>
         </select>
+        <button onClick={() => setShowRules(!showRules)}
+          className="border rounded px-3 py-1 text-sm">
+          {showRules ? 'Hide' : 'Show'} Rules
+        </button>
+      </div>
+
+      {showRules && (
+        <div className="border rounded p-3 bg-gray-50">
+          <h3 className="text-sm font-semibold mb-2">Custom Rules</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium">Global Rules</label>
+              <textarea
+                value={globalRules}
+                onChange={(e) => setGlobalRules(e.target.value)}
+                className="w-full h-24 border rounded p-2 text-xs mt-1"
+                placeholder="Global rules apply to all interactions..."
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium">Project Rules</label>
+              <textarea
+                value={projectRules}
+                onChange={(e) => setProjectRules(e.target.value)}
+                className="w-full h-24 border rounded p-2 text-xs mt-1"
+                placeholder="Project rules apply to this specific project..."
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-2 items-center">
+        <label className="text-sm">Project Path</label>
+        <input
+          value={projectPath}
+          onChange={(e) => setProjectPath(e.target.value)}
+          className="flex-1 border rounded px-2 py-1 text-sm"
+          placeholder="Path to project directory (e.g., . or /path/to/project)"
+        />
       </div>
       <div className="border rounded p-3 min-h-[240px] space-y-3 bg-white">
         {messages.map((m, i) => (

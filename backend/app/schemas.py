@@ -11,6 +11,7 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     mode: ModeName = "coder"
     project_context: Optional[Dict[str, Any]] = None  # files, paths, metadata
+    custom_rules: Optional[Dict[str, str]] = None  # global and project rules
 
 class ChatResponse(BaseModel):
     content: str

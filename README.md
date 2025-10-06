@@ -28,7 +28,23 @@ The system supports customizable rules that are automatically merged into AI pro
 
 System prompts are built as: `base + global + project + mode-specific`
 
-Edit the markdown files in `backend/app/rules/` to customize behavior across all modes.
+### Interactive Rules Editor
+
+The web interface includes a **Rules Pane** with two textareas for editing rules in real-time:
+
+- **Global Rules**: Universal guidelines for all conversations
+- **Project Rules**: Specific rules for the current project context
+
+Click "Show Rules" to access the editor and customize AI behavior without restarting the application.
+
+### Project Context Integration
+
+The **Project Panel** allows you to specify a project path for automatic context generation:
+
+- Uses `fs.index` tool to scan project directories
+- Provides file listings and metadata to the AI
+- Helps the AI understand project structure and available files
+- Integrates seamlessly with all modes for context-aware responses
 
 ## Next Steps / Nice to Have
 Streaming responses (Server-Sent Events) for faster UX.
