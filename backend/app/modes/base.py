@@ -1,13 +1,13 @@
 from typing import List, Dict, Any
-import openai
 import os
 from ..settings import settings
+from ..providers.openai import OpenAIProvider
 
 class Mode:
     name = "base"
 
     def __init__(self):
-        self.client = openai.OpenAI(api_key=settings.openai_api_key)
+        self.provider = OpenAIProvider()
 
     def load_rules(self) -> Dict[str, str]:
         """Load global and project rules from files."""
@@ -75,13 +75,11 @@ class Mode:
             # Add current user message
             messages.append({"role": "user", "content": message})
 
-            response = self.client.chat.completions.create(
-                model=settings.model,
+            raw_response = self.provider.chat_completion(
                 messages=messages,
                 max_tokens=2000,
                 temperature=0.7
             )
-            raw_response = response.choices[0].message.content.strip()
             return self.postprocess(raw_response)
         except Exception as e:
             return f"Error: {str(e)}"

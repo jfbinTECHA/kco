@@ -13,14 +13,46 @@ export default function Chat() {
     if (!input.trim()) return;
     const next = [...messages, { role: "user", content: input } as Msg];
     setMessages(next); setInput(""); setLoading(true);
-    const res = await fetch("/api/chat", {
+
+    // Add empty assistant message for streaming
+    const assistantMessage = { role: "assistant" as const, content: "" };
+    setMessages([...next, assistantMessage]);
+
+    const eventSource = new EventSource("/api/chat/stream");
+
+    eventSource.onmessage = (event) => {
+      const data = event.data;
+      if (data === "[DONE]") {
+        eventSource.close();
+        setLoading(false);
+        return;
+      }
+
+      // Append token to assistant message
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMsg = newMessages[newMessages.length - 1];
+        if (lastMsg.role === "assistant") {
+          lastMsg.content += data;
+        }
+        return newMessages;
+      });
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setLoading(false);
+    };
+
+    // Start the stream
+    fetch("/api/chat/stream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: next, mode })
+    }).catch(() => {
+      eventSource.close();
+      setLoading(false);
     });
-    const data = await res.json();
-    setMessages([...next, { role: "assistant", content: data.content }]);
-    setLoading(false);
   }
 
   return (

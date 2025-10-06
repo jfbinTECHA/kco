@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from .schemas import ChatRequest, ChatResponse
 from .kilo_adapter import get_mode
 from .settings import settings
@@ -37,3 +38,38 @@ async def chat(req: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
     text = resp.choices[0].message.content or ""
     return ChatResponse(content=mode.postprocess(text), meta={"mode": mode.name})
+
+@app.post("/chat/stream")
+async def chat_stream(req: ChatRequest):
+    mode = get_mode(req.mode)
+    system = mode.system_prompt(req.project_context)
+    messages = [{"role": "system", "content": system}] + [m.dict() for m in req.messages]
+
+    async def generate():
+        try:
+            response = client.chat.completions.create(
+                model=settings.model,
+                messages=messages,
+                temperature=0.2,
+                stream=True,
+            )
+
+            for chunk in response:
+                if chunk.choices[0].delta.content:
+                    # Send each token as a Server-Sent Event
+                    yield f"data: {chunk.choices[0].delta.content}\n\n"
+
+            # Send end marker
+            yield "data: [DONE]\n\n"
+
+        except Exception as e:
+            yield f"data: Error: {str(e)}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
