@@ -117,3 +117,16 @@ async def chat_stream(req: ChatRequest):
             "Connection": "keep-alive",
         }
     )
+
+@app.post("/tools/fs/index")
+async def fs_index(request: dict):
+    """Index files in a directory for project context."""
+    from .tools.fs import FileSystemTool
+
+    path = request.get("path", ".")
+    max_depth = request.get("max_depth", 2)
+
+    fs_tool = FileSystemTool()
+    result = fs_tool.index(path, max_depth)
+
+    return result

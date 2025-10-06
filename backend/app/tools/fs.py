@@ -169,3 +169,23 @@ class FileSystemTool:
 
         except Exception as e:
             return {"error": f"Search failed: {str(e)}"}
+
+    def index(self, path: str = ".", max_depth: int = 2) -> Dict[str, Any]:
+        """Simple index method for API compatibility"""
+        result = self.index_directory(path, max_depth)
+        if "error" in result:
+            return result
+
+        # Transform to match API expectations
+        return {
+            "files": [
+                {
+                    "path": f["path"],
+                    "size": f["size"],
+                    "type": "file" if f.get("is_text", True) else "file"
+                }
+                for f in result["files"]
+            ],
+            "total_files": result["total_files"],
+            "total_dirs": result["total_dirs"]
+        }
