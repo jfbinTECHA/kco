@@ -19,6 +19,17 @@ repo path exposed to the backend.
 (Optional) Execution sandbox — add a runner module using Docker to run tests or commands
 when ALLOW_EXECUTE=true .
 
+## Custom Rules
+
+The system supports customizable rules that are automatically merged into AI prompts:
+
+- **Global Rules** (`backend/app/rules/global.md`): Apply to all interactions
+- **Project Rules** (`backend/app/rules/project.md`): Apply to this specific project
+
+System prompts are built as: `base + global + project + mode-specific`
+
+Edit the markdown files in `backend/app/rules/` to customize behavior across all modes.
+
 ## Next Steps / Nice to Have
 Streaming responses (Server-Sent Events) for faster UX.
 File upload + lightweight repo browser to supply project_context .
