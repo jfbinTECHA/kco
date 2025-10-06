@@ -25,7 +25,8 @@ def read_root():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    mode = get_mode(req.mode)
+    from .kilo_adapter import build_system_prompt
+
     # Extract the latest user message
     user_messages = [msg for msg in req.messages if msg.role == "user"]
     if not user_messages:
@@ -33,17 +34,33 @@ async def chat(req: ChatRequest):
 
     latest_message = user_messages[-1].content
 
-    # Process with mode, context, and custom rules
-    response_text = mode.process(
-        message=latest_message,
-        project_context=req.project_context,
-        custom_rules=req.custom_rules
-    )
-    return ChatResponse(content=response_text, meta={"mode": mode.name})
+    # Build system prompt using Kilocode templates
+    system_prompt = build_system_prompt(req.mode, req.project_context)
+
+    # Get conversation history (all messages except the last user message)
+    conversation_history = [m.dict() for m in req.messages[:-1]]
+
+    # Process with OpenAI directly using the prompt template
+    messages = [{"role": "system", "content": system_prompt}]
+    if conversation_history:
+        messages.extend(conversation_history)
+    messages.append({"role": "user", "content": latest_message})
+
+    try:
+        resp = client.chat.completions.create(
+            model=settings.model,
+            messages=messages,
+            temperature=0.2,
+        )
+        response_text = resp.choices[0].message.content or ""
+        return ChatResponse(content=response_text, meta={"mode": req.mode})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest):
-    mode = get_mode(req.mode)
+    from .kilo_adapter import build_system_prompt
+
     # Extract the latest user message
     user_messages = [msg for msg in req.messages if msg.role == "user"]
     if not user_messages:
@@ -58,21 +75,35 @@ async def chat_stream(req: ChatRequest):
         )
 
     latest_message = user_messages[-1].content
-    # Convert messages to format expected by process method
-    conversation_history = [m.dict() for m in req.messages[:-1]]  # All except last message
+
+    # Build system prompt using Kilocode templates
+    system_prompt = build_system_prompt(req.mode, req.project_context)
+
+    # Get conversation history (all messages except the last user message)
+    conversation_history = [m.dict() for m in req.messages[:-1]]
+
+    # Build messages array
+    messages = [{"role": "system", "content": system_prompt}]
+    if conversation_history:
+        messages.extend(conversation_history)
+    messages.append({"role": "user", "content": latest_message})
 
     async def generate():
         try:
-            # Use the mode's process method with streaming
-            response_text = mode.process(
-                message=latest_message,
-                project_context=req.project_context,
-                conversation_history=conversation_history,
-                custom_rules=req.custom_rules
+            # Use streaming response from OpenAI
+            response = client.chat.completions.create(
+                model=settings.model,
+                messages=messages,
+                temperature=0.2,
+                stream=True,
             )
 
-            # For now, yield the full response as one chunk (streaming token-by-token would require provider changes)
-            yield f"data: {response_text}\n\n"
+            for chunk in response:
+                if chunk.choices[0].delta.content:
+                    # Send each token as a Server-Sent Event
+                    yield f"data: {chunk.choices[0].delta.content}\n\n"
+
+            # Send end marker
             yield "data: [DONE]\n\n"
 
         except Exception as e:
