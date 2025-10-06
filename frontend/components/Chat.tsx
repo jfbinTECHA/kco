@@ -1,5 +1,6 @@
 'use client';
 import { useState } from "react";
+import ModeSelector from "./ModeSelector";
 
 type Msg = { role: "user"|"assistant"; content: string };
 
@@ -68,13 +69,7 @@ export default function Chat() {
     <div className="space-y-4">
       <div className="flex gap-2 items-center">
         <label className="text-sm">Mode</label>
-        <select value={mode} onChange={(e)=>setMode(e.target.value)}
-          className="border rounded px-2 py-1">
-          <option value="architect">architect</option>
-          <option value="coder">coder</option>
-          <option value="debugger">debugger</option>
-          <option value="ask">ask</option>
-        </select>
+        <ModeSelector mode={mode} onModeChange={setMode} />
         <button onClick={() => setShowRules(!showRules)}
           className="border rounded px-3 py-1 text-sm">
           {showRules ? 'Hide' : 'Show'} Rules
