@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL=${MODEL}
+      - ALLOW_EXECUTE=${ALLOW_EXECUTE}
+    ports:
+      - "8001:8001"
+
+  frontend:
+    build: ./frontend
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
