@@ -1,5 +1,10 @@
 # Kilocode Standalone Chat
 
+## Attribution
+
+Portions of this project are adapted from [Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode)
+under the Apache-2.0 license. See [NOTICE](NOTICE) for details.
+
 ## Prereqs
 - Docker + Docker Compose
 - OpenAI API key
