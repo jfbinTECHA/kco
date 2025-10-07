@@ -201,6 +201,19 @@ Visit [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## 12. Integration Challenges & Solutions
+
+When adapting Kilocode components from VS Code extension to standalone chat platform:
+
+| Challenge                           | What to Change / Simplify                                                                                      | Reason / Risk                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Editor & extension APIs**         | Remove or abstract all VS Code / JetBrains-specific APIs (file watchers, editor buffers, command palette)      | In a chat backend you won't have a host editor environment                        |
+| **Heavy tools or commands**         | Restrict or sandbox "write file," "exec," "git," etc.                                                          | To avoid compromising the host or environment                                     |
+| **Complex memory / state coupling** | Decouple memory from editor context and make state APIs explicit (e.g. conversation history, project snapshot) | Chat modes need explicit state management                                         |
+| **UI/webview code**                 | You'll reuse some React/TS logic, but you'll need to adapt it to Next.js or your chat frontend                 | Embedding vs standalone UI are different models                                   |
+| **Prompt size & token limits**      | Kilo likely uses aggressive summarization/truncation strategies to stay within model limits                    | You'll need similar prompt trimming logic for chat                                |
+| **Error recovery and chaining**     | Some recovery logic might assume the user can directly run code, fix files in editor                           | In chat interface, you may need more clarifying questions instead of direct edits |
+
 ### ✅ Result
 
 You now have a **Kilocode‑compatible chat platform**:
@@ -208,5 +221,6 @@ You now have a **Kilocode‑compatible chat platform**:
 * Real Kilocode prompts drive OpenAI completions.
 * Modes: Architect / Coder / Debugger / Ask.
 * Streaming, rule merging, and safe context tools ready.
+* Integration challenges identified and solutions provided.
 
 Next: connect your GitHub repo, commit this integration guide, and push branch `feature/kilocode-adapter`. 🚀
