@@ -15,6 +15,15 @@ cp .env.example .env
 docker compose up --build
 Open http://localhost:3000
 
+## Development Commands
+
+### Clean restart (after code changes)
+```bash
+docker compose down --volumes --remove-orphans
+docker compose build --no-cache backend
+docker compose up
+```
+
 ## Production Deployment
 
 ### Architecture Overview
