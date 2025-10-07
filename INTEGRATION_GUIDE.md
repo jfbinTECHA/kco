@@ -2,6 +2,20 @@
 
 This guide extends the starter scaffold into a **full Kilocode‑powered AI chat platform** that runs independently of VS Code.
 
+## Architecture Overview
+
+```
+[Chat UI / Frontend]
+    ↕ Websocket / HTTP
+[Chat Orchestrator / API Layer]
+    ↕ Memory & State Store
+    ↕ Project Context Layer
+    ↕ Agent / Planner (copied from Kilo)
+        ↕ Subtasks, Tools, Chains
+    ↕ Tool Invocation Layer (fs, exec, web, plugin)
+    ↕ Model Interface (OpenAI, etc.)
+```
+
 ---
 
 ## 1. New Repository Layout
