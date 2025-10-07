@@ -15,6 +15,52 @@ cp .env.example .env
 docker compose up --build
 Open http://localhost:3000
 
+## Production Deployment
+
+### Architecture Overview
+
+```
+🌐 [Vercel Frontend (Next.js)]
+   ↓  HTTPS  (BACKEND_URL)
+🛠️ [Fly.io Backend (FastAPI + Node)]
+   ├─ FastAPI  →  /chat, /plan, /execute
+   └─ Node Kilocode Agent  →  bridge.js (streaming)
+```
+
+**Stateless demo, zero ops** - No DB/Redis/volumes required. OpenAI key lives only on backend.
+
+### Frontend Deployment (Vercel)
+
+1. **Connect Repository**: Link your GitHub repo to Vercel
+2. **Build Settings**:
+   - Framework Preset: Next.js
+   - Root Directory: `frontend`
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+3. **Environment Variables**:
+   - `BACKEND_URL`: Your Fly.io backend URL
+
+### Backend Deployment (Fly.io)
+
+1. **Install Fly CLI**: `curl -L https://fly.io/install.sh | sh`
+2. **Login**: `fly auth login`
+3. **Initialize**: `cd backend && fly launch`
+4. **Configure Environment**:
+   ```bash
+   fly secrets set OPENAI_API_KEY=your_key_here
+   fly secrets set MODEL=gpt-4o-mini
+   fly secrets set ALLOW_EXECUTE=false
+   ```
+5. **Deploy**: `fly deploy`
+
+### Key Benefits
+
+- **Stateless**: No database/Redis/volumes required
+- **Secure**: OpenAI key lives only on backend
+- **Scalable**: Vercel CDN + Fly.io containers
+- **Zero Ops**: Managed infrastructure
+- **Fast**: Global CDN for frontend, regional backend
+
 ## How to "Plug Back" Real Kilocode Logic Later
 Create a kilocode wrapper in backend/app/kilo_adapter.py that calls the real project's
 functions or a local CLI you expose.
@@ -51,9 +97,21 @@ The **Project Panel** allows you to specify a project path for automatic context
 - Helps the AI understand project structure and available files
 - Integrates seamlessly with all modes for context-aware responses
 
-## Next Steps / Nice to Have
-Streaming responses (Server-Sent Events) for faster UX.
-File upload + lightweight repo browser to supply project_context .
-Per-mode tool menus (Generate file, Run test, Diff preview).
-Cost and token-usage display.
-Swap models dynamically (UI dropdown).
+## Features Implemented
+
+✅ **Streaming responses** (Server-Sent Events) for real-time UX
+✅ **Dual-panel interface** (/dual) - AI Planner ↔ Kilocode Executor
+✅ **Kilocode bridge** - Subprocess execution of original agent
+✅ **Project context** - File indexing and awareness
+✅ **Interactive rules** - Global/project rule editing
+✅ **Multiple modes** - Architect, Coder, Debugger, Ask
+✅ **Production deployment** - Vercel + Fly.io architecture
+
+## Future Enhancements
+
+- File upload + repo browser for project context
+- Per-mode tool menus (Generate file, Run test, Diff preview)
+- Cost and token-usage display
+- Dynamic model switching (UI dropdown)
+- User authentication and session management
+- Advanced project analysis and insights
