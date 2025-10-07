@@ -45,14 +45,22 @@ Open http://localhost:3000
 
 ### Automated Deployment (Optional)
 
-The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys both backend and frontend when code is pushed to the main branch. To use it:
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys both backend and frontend when code is pushed to the main branch.
 
-1. **Add Repository Secrets** in GitHub Settings:
-   - `FLY_API_TOKEN`: Your Fly.io API token
-   - `VERCEL_TOKEN`: Your Vercel API token
-   - `VERCEL_PROJECT_ID`: Your Vercel project ID
+#### Required GitHub Secrets
 
+| Secret              | Purpose                      |
+| ------------------- | ---------------------------- |
+| `FLY_API_TOKEN`     | Fly.io personal access token |
+| `VERCEL_TOKEN`      | Vercel API token             |
+| `VERCEL_PROJECT_ID` | Found in Vercel dashboard    |
+| `OPENAI_API_KEY`    | (optional backup)            |
+
+#### Setup Steps
+
+1. **Add Repository Secrets** in GitHub Settings → Secrets and variables → Actions
 2. **Push to main branch** - deployment happens automatically
+3. **Monitor deployment** in the Actions tab
 
 ### Backend Deployment (Fly.io)
 
