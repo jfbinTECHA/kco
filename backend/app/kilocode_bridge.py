@@ -21,7 +21,7 @@ def run_kilocode_agent(mode: str, input_data: dict) -> dict:
         f.flush()
         input_path = f.name
 
-    script_path = AGENT_DIR / "dist" / "index.js"  # after tsc build
+    script_path = AGENT_DIR / "bridge.js"  # Node.js bridge script
 
     try:
         # Run Node subprocess
