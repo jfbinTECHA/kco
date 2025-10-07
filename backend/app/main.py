@@ -19,6 +19,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include new routers
+from .routes.plan import router as plan_router
+from .routes.execute import router as execute_router
+app.include_router(plan_router)
+app.include_router(execute_router)
+
 @app.get("/")
 def read_root():
     return {"message": "KiloCode Standalone Backend"}
