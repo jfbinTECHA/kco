@@ -37,6 +37,7 @@ Open http://localhost:3000
    - Root Directory: `frontend`
    - Build Command: `npm run build`
    - Output Directory: `.next`
+   - Use the provided `vercel.json` configuration
 3. **Environment Variables**:
    - `BACKEND_URL`: Your Fly.io backend URL
 
@@ -45,6 +46,7 @@ Open http://localhost:3000
 1. **Install Fly CLI**: `curl -L https://fly.io/install.sh | sh`
 2. **Login**: `fly auth login`
 3. **Initialize**: `cd backend && fly launch`
+   - Use the provided `fly.toml` configuration
 4. **Configure Environment**:
    ```bash
    fly secrets set OPENAI_API_KEY=your_key_here
