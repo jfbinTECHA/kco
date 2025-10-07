@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from .schemas import ChatRequest, ChatResponse
-from .kilo_adapter import get_mode
+from .kilo_adapter import get_mode, build_system_prompt
 from .settings import settings
 from openai import OpenAI
 
@@ -25,6 +25,22 @@ def read_root():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
+    from .kilocode_bridge import run_kilocode_agent
+
+    # Try Kilocode agent first (maximum fidelity)
+    agent_output = run_kilocode_agent(req.mode, {
+        "messages": [m.dict() for m in req.messages],
+        "project_context": req.project_context
+    })
+
+    if "error" not in agent_output:
+        # Use the Kilocode agent's response
+        return ChatResponse(
+            content=agent_output.get("content", ""),
+            meta={"mode": req.mode, "source": "kilocode_agent"}
+        )
+
+    # Fallback to OpenAI directly if bridge fails
     mode = get_mode(req.mode)
 
     # Extract the latest user message
@@ -53,7 +69,7 @@ async def chat(req: ChatRequest):
             temperature=0.2,
         )
         response_text = resp.choices[0].message.content or ""
-        return ChatResponse(content=response_text, meta={"mode": mode.name})
+        return ChatResponse(content=response_text, meta={"mode": mode.name, "source": "openai_fallback"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
