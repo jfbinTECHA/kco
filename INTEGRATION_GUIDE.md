@@ -237,4 +237,43 @@ You now have a **Kilocode‑compatible chat platform**:
 * Streaming, rule merging, and safe context tools ready.
 * Integration challenges identified and solutions provided.
 
+## 13. Recommended Import Order for Real Kilocode Integration
+
+When ready to integrate authentic Kilocode components:
+
+### ✅ **Priority Import Order**
+
+1. **Copy `packages/prompts/` → `backend/prompts`**
+   *Authentic mode templates - replace your simplified prompts*
+
+2. **Copy `packages/agent/` → `backend/kilocode_core/agent`**
+   *Reasoning and planning logic for complex tasks*
+
+3. **Copy `packages/parser/` → `backend/kilocode_core/parser`**
+   *Code parsing and analysis utilities*
+
+4. **Optionally study `packages/tools/` for safe equivalents**
+   *Reference for secure tool implementations*
+
+5. **Reference `.kilocodemodes` for mode registration**
+   *Official mode definitions and capabilities*
+
+### 🔧 **Integration Steps**
+
+1. **Update `kilo_adapter.py`** to load from `backend/prompts/` instead of templates
+2. **Extend mode classes** to use `kilocode_core/agent` for complex reasoning
+3. **Add parser utilities** for enhanced code understanding
+4. **Register modes** according to `.kilocodemodes` specifications
+5. **Test integration** with existing chat interface
+
+### ⚠️ **Remember Integration Challenges**
+
+Apply the 6 documented challenges when integrating real components:
+- Remove VS Code APIs
+- Sandbox heavy tools
+- Make state explicit
+- Adapt UI components
+- Handle token limits
+- Use chat-based error recovery
+
 Next: connect your GitHub repo, commit this integration guide, and push branch `feature/kilocode-adapter`. 🚀
