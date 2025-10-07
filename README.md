@@ -84,6 +84,10 @@ curl https://kilocode-backend.fly.dev/plan      # should return 405 (good)
 open  https://kilocode-standalone.vercel.app/dual
 ```
 
+**Access at:**
+- Frontend: https://kilocode-standalone.vercel.app/dual
+- Backend: https://kilocode-backend.fly.dev
+
 ### Key Benefits
 
 - **Stateless**: No database/Redis/volumes required
