@@ -31,15 +31,17 @@ Open http://localhost:3000
 
 ### Frontend Deployment (Vercel)
 
-1. **Connect Repository**: Link your GitHub repo to Vercel
-2. **Build Settings**:
-   - Framework Preset: Next.js
-   - Root Directory: `frontend`
-   - Build Command: `npm run build`
-   - Output Directory: `.next`
-   - Use the provided `vercel.json` configuration
-3. **Environment Variables**:
-   - `BACKEND_URL`: Your Fly.io backend URL
+1. **Push to GitHub**: Ensure repo is pushed to GitHub (main or public-demo branch)
+2. **Import Project**: Visit https://vercel.com/new and import your repository
+3. **Configure Build**:
+   - **Root Directory**: `frontend/`
+   - Vercel will auto-detect Next.js settings
+   - Uses the provided `vercel.json` configuration
+4. **Environment Variables**:
+   - `BACKEND_URL`: `https://kilocode-backend.fly.dev`
+5. **Deploy**: Click "Deploy" ✅
+
+**Your demo URL will look like**: `https://kilocode-standalone.vercel.app/dual`
 
 ### Backend Deployment (Fly.io)
 
