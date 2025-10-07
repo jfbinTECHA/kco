@@ -44,16 +44,15 @@ Open http://localhost:3000
 ### Backend Deployment (Fly.io)
 
 1. **Install Fly CLI**: `curl -L https://fly.io/install.sh | sh`
-2. **Login**: `fly auth login`
-3. **Initialize**: `cd backend && fly launch`
-   - Use the provided `fly.toml` configuration
-4. **Configure Environment**:
+2. **Deploy Backend**:
    ```bash
-   fly secrets set OPENAI_API_KEY=your_key_here
-   fly secrets set MODEL=gpt-4o-mini
-   fly secrets set ALLOW_EXECUTE=false
+   cd backend
+   fly auth login
+   fly launch --now --region iad --copy-config
+   fly secrets set OPENAI_API_KEY=sk-yourkeyhere
    ```
-5. **Deploy**: `fly deploy`
+3. **Note Backend URL**: Once deployed, your backend will be available at:
+   `https://kilocode-backend.fly.dev`
 
 ### Key Benefits
 
