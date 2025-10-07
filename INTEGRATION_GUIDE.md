@@ -276,4 +276,59 @@ Apply the 6 documented challenges when integrating real components:
 - Handle token limits
 - Use chat-based error recovery
 
+## 14. Advanced Integration: Kilocode Bridge (Optional)
+
+For maximum fidelity, run the original Kilocode Node.js agent as a subprocess:
+
+### 🔗 **Kilocode Bridge Implementation**
+
+```python
+# backend/app/kilocode_bridge.py
+"""
+Kilocode Bridge — run the Node-based Kilocode agent as a subprocess.
+Allows the Python backend to call Kilocode's original JS/TS reasoning logic.
+"""
+
+import subprocess, json, tempfile, os
+from pathlib import Path
+
+def run_kilocode_agent(mode: str, input_data: dict) -> dict:
+    """Executes the Kilocode agent with JSON input via subprocess."""
+    # Implementation details in kilocode_bridge.py
+```
+
+### 🛠️ **Bridge Usage**
+
+```python
+# In your mode classes
+from .kilocode_bridge import run_kilocode_agent
+
+class ArchitectMode(Mode):
+    def system_prompt(self, project_context):
+        return "High-level design focus..."
+
+    def process(self, message, project_context=None, conversation_history=None):
+        # Use original Kilocode agent
+        result = run_kilocode_agent("architect", {
+            "message": message,
+            "project_context": project_context,
+            "conversation_history": conversation_history
+        })
+        return result.get("response", "Error: Bridge failed")
+```
+
+### ⚙️ **Setup Requirements**
+
+1. **Copy `packages/agent/` → `backend/kilocode_core/agent`**
+2. **Build TypeScript**: `cd backend/kilocode_core/agent && npm install && npm run build`
+3. **Ensure Node.js** is available in the Docker container
+4. **Update Dockerfile** to include Node.js runtime
+
+### 🔄 **Hybrid Approach**
+
+You can mix approaches:
+- Use bridge for complex reasoning (agent/planner)
+- Keep simple prompt loading for basic modes
+- Gradually migrate components as needed
+
 Next: connect your GitHub repo, commit this integration guide, and push branch `feature/kilocode-adapter`. 🚀
