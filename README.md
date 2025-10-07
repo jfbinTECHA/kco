@@ -72,8 +72,10 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
    fly launch --now --region iad --copy-config
    fly secrets set OPENAI_API_KEY=sk-yourkeyhere
    ```
-3. **Note Backend URL**: Once deployed, your backend will be available at:
-   `https://kilocode-backend.fly.dev`
+      💡 **For demo mode, set MODEL=gpt-4o-mini or gpt-3.5-turbo to stay cheap.**
+   
+   3. **Note Backend URL**: Once deployed, your backend will be available at:
+      `https://kilocode-backend.fly.dev`
 
 #### Testing Commands
 ```bash
