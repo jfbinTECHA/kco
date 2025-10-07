@@ -43,6 +43,17 @@ Open http://localhost:3000
 
 **Your demo URL will look like**: `https://kilocode-standalone.vercel.app/dual`
 
+### Automated Deployment (Optional)
+
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys both backend and frontend when code is pushed to the main branch. To use it:
+
+1. **Add Repository Secrets** in GitHub Settings:
+   - `FLY_API_TOKEN`: Your Fly.io API token
+   - `VERCEL_TOKEN`: Your Vercel API token
+   - `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+2. **Push to main branch** - deployment happens automatically
+
 ### Backend Deployment (Fly.io)
 
 1. **Install Fly CLI**: `curl -L https://fly.io/install.sh | sh`
