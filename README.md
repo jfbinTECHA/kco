@@ -64,18 +64,16 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
 
 ### Backend Deployment (Fly.io)
 
-1. **Install Fly CLI**: `curl -L https://fly.io/install.sh | sh`
-2. **Deploy Backend**:
-   ```bash
-   cd backend
-   fly auth login
-   fly launch --now --region iad --copy-config
-   fly secrets set OPENAI_API_KEY=sk-yourkeyhere
-   ```
-      💡 **For demo mode, set MODEL=gpt-4o-mini or gpt-3.5-turbo to stay cheap.**
-   
-   3. **Note Backend URL**: Once deployed, your backend will be available at:
-      `https://kilocode-backend.fly.dev`
+**Add backend/fly.toml** (from the deployment guide).
+
+```bash
+cd backend
+fly auth login
+fly launch --now --region iad --copy-config
+fly secrets set OPENAI_API_KEY=sk-yourkeyhere
+```
+
+**Result**: Get URL like `https://kilocode-backend.fly.dev`
 
 #### Testing Commands
 ```bash
