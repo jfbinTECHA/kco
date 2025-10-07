@@ -75,6 +75,13 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
 3. **Note Backend URL**: Once deployed, your backend will be available at:
    `https://kilocode-backend.fly.dev`
 
+#### Testing Commands
+```bash
+curl https://kilocode-backend.fly.dev/docs      # FastAPI online
+curl https://kilocode-backend.fly.dev/plan      # should return 405 (good)
+open  https://kilocode-standalone.vercel.app/dual
+```
+
 ### Key Benefits
 
 - **Stateless**: No database/Redis/volumes required
