@@ -320,9 +320,12 @@ class ArchitectMode(Mode):
 ### ⚙️ **Setup Requirements**
 
 1. **Copy `packages/agent/` → `backend/kilocode_core/agent`**
-2. **Build TypeScript**: `cd backend/kilocode_core/agent && npm install && npm run build`
-3. **Ensure Node.js** is available in the Docker container
-4. **Update Dockerfile** to include Node.js runtime
+2. **Create bridge.js**: Use the provided `bridge.js` script in `backend/kilocode_core/agent/`
+3. **Install Node dependencies**: `cd backend/kilocode_core/agent && pnpm install`
+4. **Build TypeScript**: `cd backend/kilocode_core/agent && pnpm build`
+5. **Test bridge manually**: `cd backend/kilocode_core/agent && node bridge.js sample_input.json`
+6. **Ensure Node.js** is available in the Docker container
+7. **Update Dockerfile** to include Node.js runtime
 
 ### 🔄 **Hybrid Approach**
 
